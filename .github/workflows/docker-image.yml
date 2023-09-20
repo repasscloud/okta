@@ -1,0 +1,30 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build-and-push:
+
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKER_API_KEY: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        run: echo $DOCKER_API_KEY | docker login -u $DOCKER_USERNAME --password-stdin
+
+      - name: Build Docker image
+        run: docker build --rm --no-cache -t repasscloud/okta .
+
+      - name: Push Docker image
+        run: docker push repasscloud/okta
